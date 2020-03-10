@@ -86,15 +86,14 @@ func (api *Api) GooglePay(data []byte) ([]byte, error) {
 }
 
 func (api *Api) FormUrl(data []byte) (string, error)  {
-	dataForKeyIv := []byte(api.PrivateKey)
-
-	encryptedData, err := EncryptCBC(dataForKeyIv[:32], data, dataForKeyIv[:16])
+	secretKey := []byte(api.PrivateKey)[:32]
+	encryptedData, err := EncryptCBC(secretKey, data)
 
 	if err != nil {
 		return "", err
 	}
 
-	encoded := base64.URLEncoding.EncodeToString([]byte(encryptedData))
+	encoded := base64.URLEncoding.EncodeToString(encryptedData)
 	signature := api.generateSignature([]byte(encoded))
 
 	return fmt.Sprintf(api.BaseUri + PatternFormUrl, api.MerchantId, encoded, signature), nil

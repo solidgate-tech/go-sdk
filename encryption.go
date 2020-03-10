@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/rand"
 	"errors"
+	"io"
 )
 
 func pkcs7Pad(b []byte, blockSize int) ([]byte, error) {
@@ -23,7 +25,7 @@ func pkcs7Pad(b []byte, blockSize int) ([]byte, error) {
 	return pb, nil
 }
 
-func EncryptCBC(key, data, iv []byte) ([]byte, error) {
+func EncryptCBC(key, data []byte) ([]byte, error) {
 	data, err := pkcs7Pad(data, aes.BlockSize)
 
 	if err != nil {
@@ -35,19 +37,15 @@ func EncryptCBC(key, data, iv []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	ciphertext := make([]byte, len(data))
-	mode := cipher.NewCBCEncrypter(block, iv)
-	mode.CryptBlocks(ciphertext[:len(data)], data)
 
-	return ciphertext[:len(data)], nil
-}
-func DecryptCBC(key, data, iv []byte) ([]byte, error) {
-	block, err := aes.NewCipher(key)
-	if err != nil {
+	cipherText := make([]byte, aes.BlockSize + len(data))
+	iv := cipherText[:aes.BlockSize]
+	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
 		return nil, err
 	}
-	mode := cipher.NewCBCDecrypter(block, iv)
-	mode.CryptBlocks(data, data)
 
-	return data, nil
+	mode := cipher.NewCBCEncrypter(block, iv)
+	mode.CryptBlocks(cipherText[aes.BlockSize:], data)
+
+	return cipherText, nil
 }
