@@ -14,6 +14,7 @@ import (
 
 const DefaultApiUrl = "https://pay.solidgate.com/api/v1/"
 const PatternFormUrl = "form?merchant=%s&form_data=%s&signature=%s"
+const PatternResignFormUrl = "form/resign?merchant=%s&form_data=%s&signature=%s"
 
 type IApi interface {
 	Charge(data []byte) ([]byte, error)
@@ -29,6 +30,7 @@ type IApi interface {
 	ApplePay(data []byte) ([]byte, error)
 	GooglePay(data []byte) ([]byte, error)
 	FormUrl(data []byte) (string, error)
+	ResignFormUrl(data []byte) (string, error)
 }
 
 type Api struct {
@@ -97,6 +99,20 @@ func (api *Api) FormUrl(data []byte) (string, error)  {
 	signature := api.generateSignature([]byte(encoded))
 
 	return fmt.Sprintf(api.BaseUri + PatternFormUrl, api.MerchantId, encoded, signature), nil
+}
+
+func (api *Api) ResignFormUrl(data []byte) (string, error)  {
+	secretKey := []byte(api.PrivateKey)[:32]
+	encryptedData, err := EncryptCBC(secretKey, data)
+
+	if err != nil {
+		return "", err
+	}
+
+	encoded := base64.URLEncoding.EncodeToString(encryptedData)
+	signature := api.generateSignature([]byte(encoded))
+
+	return fmt.Sprintf(api.BaseUri + PatternResignFormUrl, api.MerchantId, encoded, signature), nil
 }
 
 func (api *Api) generateSignature(data []byte) string {
