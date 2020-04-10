@@ -1,3 +1,5 @@
+[![Go project version](https://badge.fury.io/go/bitbucket.org%2Fsolidgate%2Fgo-sdk.svg)](https://badge.fury.io/go/bitbucket.org%2Fsolidgate%2Fgo-sdk)
+
 # SolidGate API
 
 
