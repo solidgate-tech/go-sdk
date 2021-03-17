@@ -31,6 +31,7 @@ type IApi interface {
 	GooglePay(data []byte) ([]byte, error)
 	FormUrl(data []byte) (string, error)
 	ResignFormUrl(data []byte) (string, error)
+	FormMerchantData(data []byte) (*MerchantData, error)
 }
 
 type Api struct {
@@ -87,7 +88,7 @@ func (api *Api) GooglePay(data []byte) ([]byte, error) {
 	return api.makeRequest("google-pay", data)
 }
 
-func (api *Api) FormUrl(data []byte) (string, error)  {
+func (api *Api) FormUrl(data []byte) (string, error) {
 	secretKey := []byte(api.PrivateKey)[:32]
 	encryptedData, err := EncryptCBC(secretKey, data)
 
@@ -98,10 +99,10 @@ func (api *Api) FormUrl(data []byte) (string, error)  {
 	encoded := base64.URLEncoding.EncodeToString(encryptedData)
 	signature := api.generateSignature([]byte(encoded))
 
-	return fmt.Sprintf(api.BaseUri + PatternFormUrl, api.MerchantId, encoded, signature), nil
+	return fmt.Sprintf(api.BaseUri+PatternFormUrl, api.MerchantId, encoded, signature), nil
 }
 
-func (api *Api) ResignFormUrl(data []byte) (string, error)  {
+func (api *Api) ResignFormUrl(data []byte) (string, error) {
 	secretKey := []byte(api.PrivateKey)[:32]
 	encryptedData, err := EncryptCBC(secretKey, data)
 
@@ -112,7 +113,7 @@ func (api *Api) ResignFormUrl(data []byte) (string, error)  {
 	encoded := base64.URLEncoding.EncodeToString(encryptedData)
 	signature := api.generateSignature([]byte(encoded))
 
-	return fmt.Sprintf(api.BaseUri + PatternResignFormUrl, api.MerchantId, encoded, signature), nil
+	return fmt.Sprintf(api.BaseUri+PatternResignFormUrl, api.MerchantId, encoded, signature), nil
 }
 
 func (api *Api) generateSignature(data []byte) string {
@@ -130,7 +131,7 @@ func (api *Api) makeRequest(url string, payloadJson []byte) ([]byte, error) {
 		return nil, errors.New("empty payload")
 	}
 
-	req, err := http.NewRequest("POST", api.BaseUri + url, bytes.NewBuffer(payloadJson))
+	req, err := http.NewRequest("POST", api.BaseUri+url, bytes.NewBuffer(payloadJson))
 	if err != nil {
 		return nil, err
 	}
@@ -147,6 +148,30 @@ func (api *Api) makeRequest(url string, payloadJson []byte) ([]byte, error) {
 
 	body, err := ioutil.ReadAll(res.Body)
 	return body, nil
+}
+
+func (api *Api) FormMerchantData(data []byte) (*MerchantData, error) {
+	if len(data) <= 0 {
+		return nil, errors.New("empty payload")
+	}
+
+	secretKey := []byte(api.PrivateKey)[:32]
+	encryptedData, err := EncryptCBC(secretKey, data)
+
+	if err != nil {
+		return nil, err
+	}
+
+	encoded := base64.URLEncoding.EncodeToString(encryptedData)
+	signature := api.generateSignature([]byte(encoded))
+
+	merchantData := MerchantData{
+		PaymentIntent: encoded,
+		Merchant:      api.MerchantId,
+		Signature:     signature,
+	}
+
+	return &merchantData, nil
 }
 
 func NewSolidGateApi(merchantId string, privateKey string, baseUri *string) *Api {
