@@ -138,6 +138,8 @@ func (api *Api) makeRequest(url string, payloadJson []byte) ([]byte, error) {
 
 	req.Header.Set("Signature", api.generateSignature(payloadJson))
 	req.Header.Set("Merchant", api.MerchantId)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
 
 	client := &http.Client{}
 	res, err := client.Do(req)
