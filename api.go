@@ -97,7 +97,7 @@ func (api *Api) FormUrl(data []byte) (string, error) {
 	}
 
 	encoded := base64.URLEncoding.EncodeToString(encryptedData)
-	signature := api.generateSignature([]byte(encoded))
+	signature := api.GenerateSignature([]byte(encoded))
 
 	return fmt.Sprintf(api.BaseUri+PatternFormUrl, api.MerchantId, encoded, signature), nil
 }
@@ -111,12 +111,12 @@ func (api *Api) ResignFormUrl(data []byte) (string, error) {
 	}
 
 	encoded := base64.URLEncoding.EncodeToString(encryptedData)
-	signature := api.generateSignature([]byte(encoded))
+	signature := api.GenerateSignature([]byte(encoded))
 
 	return fmt.Sprintf(api.BaseUri+PatternResignFormUrl, api.MerchantId, encoded, signature), nil
 }
 
-func (api *Api) generateSignature(data []byte) string {
+func (api *Api) GenerateSignature(data []byte) string {
 	payloadData := api.MerchantId + string(data) + api.MerchantId
 
 	keyForSign := []byte(api.PrivateKey)
@@ -136,7 +136,7 @@ func (api *Api) makeRequest(url string, payloadJson []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	req.Header.Set("Signature", api.generateSignature(payloadJson))
+	req.Header.Set("Signature", api.GenerateSignature(payloadJson))
 	req.Header.Set("Merchant", api.MerchantId)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
@@ -165,7 +165,7 @@ func (api *Api) FormMerchantData(data []byte) (*MerchantData, error) {
 	}
 
 	encoded := base64.URLEncoding.EncodeToString(encryptedData)
-	signature := api.generateSignature([]byte(encoded))
+	signature := api.GenerateSignature([]byte(encoded))
 
 	merchantData := MerchantData{
 		PaymentIntent: encoded,
