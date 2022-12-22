@@ -56,10 +56,6 @@ func (api *Api) Status(data []byte) ([]byte, error) {
 	return api.makeRequest("status", data)
 }
 
-func (api *Api) InitPayment(data []byte) ([]byte, error) {
-	return api.makeRequest("init-payment", data)
-}
-
 func (api *Api) Resign(data []byte) ([]byte, error) {
 	return api.makeRequest("resign", data)
 }
