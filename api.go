@@ -31,7 +31,8 @@ type IApi interface {
 	GooglePay(data []byte) ([]byte, error)
 	FormUrl(data []byte) (string, error)
 	ResignFormUrl(data []byte) (string, error)
-	FormMerchantData(data []byte) (*MerchantData, error)
+	FormMerchantData(data []byte) (*FormInitDTO, error)
+	FormUpdate(data []byte) (*FormInitDTO, error)
 }
 
 type Api struct {
@@ -148,7 +149,7 @@ func (api *Api) makeRequest(url string, payloadJson []byte) ([]byte, error) {
 	return body, nil
 }
 
-func (api *Api) FormMerchantData(data []byte) (*MerchantData, error) {
+func (api *Api) FormMerchantData(data []byte) (*FormInitDTO, error) {
 	if len(data) <= 0 {
 		return nil, errors.New("empty payload")
 	}
@@ -163,13 +164,36 @@ func (api *Api) FormMerchantData(data []byte) (*MerchantData, error) {
 	encoded := base64.URLEncoding.EncodeToString(encryptedData)
 	signature := api.GenerateSignature([]byte(encoded))
 
-	merchantData := MerchantData{
+	formInitDto := FormInitDTO{
 		PaymentIntent: encoded,
 		Merchant:      api.MerchantId,
 		Signature:     signature,
 	}
 
-	return &merchantData, nil
+	return &formInitDto, nil
+}
+
+func (api *Api) FormUpdate(data []byte) (*FormUpdateDTO, error) {
+	if len(data) <= 0 {
+		return nil, errors.New("empty payload")
+	}
+
+	secretKey := []byte(api.PrivateKey)[:32]
+	encryptedData, err := EncryptCBC(secretKey, data)
+
+	if err != nil {
+		return nil, err
+	}
+
+	encoded := base64.URLEncoding.EncodeToString(encryptedData)
+	signature := api.GenerateSignature([]byte(encoded))
+
+	formUpdateDto := FormUpdateDTO{
+		PartialIntent: encoded,
+		Signature:     signature,
+	}
+
+	return &formUpdateDto, nil
 }
 
 func NewSolidGateApi(merchantId string, privateKey string, baseUri *string) *Api {

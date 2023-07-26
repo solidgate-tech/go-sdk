@@ -1,3 +1,3 @@
-module bitbucket.org/solidgate/go-sdk
+module github.com/solidgate-tech/go-sdk
 
 go 1.13
