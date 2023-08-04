@@ -1,3 +1,5 @@
+[![Go project version](https://badge.fury.io/go/github.com%2solidgate-tech%2go-sdk.svg)](https://badge.fury.io/go/github.com%2solidgate-tech%2go-sdk)
+
 # SolidGate API
 
 This library provides basic API options of SolidGate payment gateway.
