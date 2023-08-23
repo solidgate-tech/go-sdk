@@ -13,27 +13,7 @@ import (
 )
 
 const DefaultApiUrl = "https://pay.solidgate.com/api/v1/"
-const PatternFormUrl = "form?merchant=%s&form_data=%s&signature=%s"
 const PatternResignFormUrl = "form/resign?merchant=%s&form_data=%s&signature=%s"
-
-type IApi interface {
-	Charge(data []byte) ([]byte, error)
-	Refund(data []byte) ([]byte, error)
-	Recurring(data []byte) ([]byte, error)
-	Status(data []byte) ([]byte, error)
-	InitPayment(data []byte) ([]byte, error)
-	Resign(data []byte) ([]byte, error)
-	Auth(data []byte) ([]byte, error)
-	Settle(data []byte) ([]byte, error)
-	Void(data []byte) ([]byte, error)
-	ArnCode(data []byte) ([]byte, error)
-	ApplePay(data []byte) ([]byte, error)
-	GooglePay(data []byte) ([]byte, error)
-	FormUrl(data []byte) (string, error)
-	ResignFormUrl(data []byte) (string, error)
-	FormMerchantData(data []byte) (*FormInitDTO, error)
-	FormUpdate(data []byte) (*FormInitDTO, error)
-}
 
 type Api struct {
 	MerchantId string
@@ -83,20 +63,6 @@ func (api *Api) ApplePay(data []byte) ([]byte, error) {
 
 func (api *Api) GooglePay(data []byte) ([]byte, error) {
 	return api.makeRequest("google-pay", data)
-}
-
-func (api *Api) FormUrl(data []byte) (string, error) {
-	secretKey := []byte(api.PrivateKey)[:32]
-	encryptedData, err := EncryptCBC(secretKey, data)
-
-	if err != nil {
-		return "", err
-	}
-
-	encoded := base64.URLEncoding.EncodeToString(encryptedData)
-	signature := api.GenerateSignature([]byte(encoded))
-
-	return fmt.Sprintf(api.BaseUri+PatternFormUrl, api.MerchantId, encoded, signature), nil
 }
 
 func (api *Api) ResignFormUrl(data []byte) (string, error) {
