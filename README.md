@@ -118,3 +118,36 @@ func main() {
 }
 
 ```
+
+## Usage for resign form data
+
+```go
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+
+	solidgate "github.com/solidgate-tech/go-sdk"
+)
+
+func main() {
+
+	solidgateSdk := solidgate.NewSolidGateApi("YourPublicKey", "YourSecretKey")
+	someRequestStruct := SomeRequestStruct{}
+	someStructJson, err := json.Marshal(someRequestStruct)
+
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	formResignDto, err := solidgateSdk.FormResign(someStructJson)
+
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	// ...
+}
+
+```

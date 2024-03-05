@@ -162,6 +162,30 @@ func (api *Api) FormUpdate(data []byte) (*FormUpdateDTO, error) {
 	return &formUpdateDto, nil
 }
 
+func (api *Api) FormResign(data []byte) (*FormResignDTO, error) {
+	if len(data) <= 0 {
+		return nil, errors.New("empty payload")
+	}
+
+	secretKey := []byte(api.PrivateKey)[:32]
+	encryptedData, err := EncryptCBC(secretKey, data)
+
+	if err != nil {
+		return nil, fmt.Errorf(`encrypt: %w`, err)
+	}
+
+	encoded := base64.URLEncoding.EncodeToString(encryptedData)
+	signature := api.GenerateSignature([]byte(encoded))
+
+	formResignDTO := FormResignDTO{
+		PaymentIntent: encoded,
+		Merchant:      api.MerchantId,
+		Signature:     signature,
+	}
+
+	return &formResignDTO, nil
+}
+
 func NewSolidGateApi(merchantId string, privateKey string, baseUri *string) *Api {
 	defaultUrl := DefaultApiUrl
 
