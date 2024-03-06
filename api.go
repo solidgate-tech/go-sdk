@@ -178,9 +178,9 @@ func (api *Api) FormResign(data []byte) (*FormResignDTO, error) {
 	signature := api.GenerateSignature([]byte(encoded))
 
 	formResignDTO := FormResignDTO{
-		PaymentIntent: encoded,
-		Merchant:      api.MerchantId,
-		Signature:     signature,
+		ResignIntent: encoded,
+		Merchant:     api.MerchantId,
+		Signature:    signature,
 	}
 
 	return &formResignDTO, nil

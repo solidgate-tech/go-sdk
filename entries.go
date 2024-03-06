@@ -12,7 +12,7 @@ type FormUpdateDTO struct {
 }
 
 type FormResignDTO struct {
-	PaymentIntent string
-	Merchant      string
-	Signature     string
+	ResignIntent string
+	Merchant     string
+	Signature    string
 }
