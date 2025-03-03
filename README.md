@@ -40,6 +40,8 @@ Check our
 * **GO**: 1.13 or later
 * **Solidgate account**: Merchant ID and secret key (request via <a href="mailto:sales@solidgate.com">sales@solidgate.com</a>)
 
+<br>
+
 ## Installation
 
 To install the Go SDK:
@@ -54,6 +56,8 @@ To install the Go SDK:
    import solidgate "github.com/solidgate-tech/go-sdk"
    ```
 4. Use test credentials to validate your integration before deploying to production.
+
+<br>
 
 ## Usage
 
@@ -206,6 +210,8 @@ func main() {
 }
 
 ```
+
+<br>
 
 ## Errors
 
