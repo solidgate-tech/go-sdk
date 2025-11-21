@@ -240,3 +240,8 @@ if err != nil {
    fmt.Println(err)
 }
 ```
+
+---
+
+Looking for help? <a href="https://support.solidgate.com/support/tickets/new" target="_blank">Contact us</a> <br>
+Want to contribute? <a href="https://github.com/solidgate-tech/go-sdk/pulls" target="_blank">Submit a pull request</a>
